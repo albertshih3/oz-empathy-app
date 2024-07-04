@@ -1,50 +1,11 @@
-# Welcome to your Expo app 👋
+# Oakland Zoo Empathy Guide Mobile App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This is a mobile app I created for the Oakland Zoo for interal use by the Learning & Engagement Department. Taking the work done by Wilson Sherman, I converted the website into a mobile application to make it easier for staff to access, as well as provide a streamlined view of the website for mobile devices. Oh! Most importantly, there is offline support which should help increase access in the internetless zoo :D
 
-## Get started
+## Important Code Notes
 
-1. Install dependencies
+Since this project contains important information that is for zoo staff only, some files are ignored when pushed to Github, namely the Firebase files as well as the ```app.js``` file.
 
-   ```bash
-   npm install
-   ```
+## How it was built!
 
-2. Start the app
-
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+The project was developed using the [Expo](https://www.expo.dev) framework on React Native. Backend services are provided by [Firebase](https://firebase.google.com) and are built natively with [React Native Firebase](https://rnfirebase.io/). While some UI components are hand crafted, others are provided by [RNUI](https://wix.github.io/react-native-ui-lib/).
