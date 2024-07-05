@@ -1,7 +1,7 @@
 import { View, Text, Dimensions, ScrollView } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useLocalSearchParams, Stack, useNavigation } from 'expo-router';
-import firestore from '@react-native-firebase/firestore';
+import firestore, { doc } from '@react-native-firebase/firestore';
 import React from 'react';
 import { LoaderScreen } from 'react-native-ui-lib';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -28,7 +28,7 @@ const Animal = () => {
             const doc = await animalDocument.get();
             if (doc.exists) {
                 const personalCollection = await animalDocument.collection('personal').get();
-                const personalData = personalCollection.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const personalData = personalCollection.docs.map(doc => ({ docid: doc.id, ...doc.data() }));
                 setAnimal({ id: doc.id, personal: personalData, ...doc.data() });
                 setIsLoading(false);
             } else {
@@ -51,6 +51,7 @@ const Animal = () => {
         name: string;
         title: string;
         id: string;
+        docid: string;
         image: { uri: string }
         description: string;
         onPress: () => void;
@@ -60,6 +61,7 @@ const Animal = () => {
         image: { uri: item.photourl },
         title: item.name,
         description: item.id, // Add a description if available
+        docid: item.docid,
         onPress: () => { }, // Add an onPress function if needed
     })) : [];
 
@@ -87,7 +89,7 @@ const Animal = () => {
                 <ScrollView>
                     <View style={{ flex: 1, minHeight: 220 }}>
 
-                    <Card style={{ flex: 1, maxHeight: 205, margin: 10, marginBottom: 5 }}>
+                    <Card style={{ flex: 1, maxHeight: 205, marginTop: 10, marginLeft: 10, marginRight: 10, marginBottom: 0 }}>
                         <Card.Section
                             imageSource={require('../../assets/images/home/welcometext.png')} imageStyle={{ height: 100, width: imageWidth, alignSelf: "center" }}
                             content={[
@@ -112,7 +114,7 @@ const Animal = () => {
                         <Carousel
                             data={cards}
                             renderItem={({ item }: { item: PersonalItem }) => (
-                                <Card key={item.title} style={{ flex: 1, maxHeight: 165, margin: 10 }} onPress={ () => router.push({pathname: '/(detail)/[detail]', params: { id: item.title }}) }>
+                                <Card key={item.title} style={{ flex: 1, maxHeight: 165, marginTop: 10, marginLeft: 10, marginRight: 10 }} onPress={ () => router.navigate({pathname: '/(detail)/[detail]', params: { id: item.docid, other: `${id}` }}) }>
                                     <Card.Section
                                         content={[
                                             { text: item.title, text60BO: true, $textDefault: true },
