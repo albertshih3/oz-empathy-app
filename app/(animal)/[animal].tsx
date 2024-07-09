@@ -94,14 +94,14 @@ const Animal = () => {
                             imageSource={require('../../assets/images/home/welcometext.png')} imageStyle={{ height: 100, width: imageWidth, alignSelf: "center" }}
                             content={[
                                 { text: animal.name, text40BO: true, $textDefault: true },
-                                { text: `${animal.class} • ${animal.family} • ${animal.genus} `, text80R: true },
+                                { text: `${animal.class} • ${animal.order} • ${animal.family} • ${animal.genus} `, text80R: true },
                             ]}
                             contentStyle={{ padding: 35, marginTop: 0 }}
                         />
                         <Card.Section
                             content={[
                                 {
-                                    text: `View the details of ${animal.name} below. You can click on individual animals to view animal specific information.`,
+                                    text: `View the details of the ${animal.name} below. Scroll and click on each individual animal to learn more.`,
                                     text70: true,
                                 }
                             ]}
@@ -130,8 +130,8 @@ const Animal = () => {
                             )}
                             width={Constants.screenWidth}
                             height={450}
-                            autoPlay={false}
-                            autoPlayInterval={3000}
+                            autoPlay={true}
+                            autoPlayInterval={5000}
                             scrollAnimationDuration={500}
                             onProgressChange={progress}
                         />

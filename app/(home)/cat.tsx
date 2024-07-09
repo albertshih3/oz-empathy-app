@@ -25,7 +25,7 @@ const California = () => {
 
     return (
         <ScrollView>
-            <View style={{ flex: 1, flexDirection: screenWidth < 768 ? 'column' : 'row', flexWrap: 'wrap', justifyContent: 'space-evenly', margin: 5, marginTop: 20 }}>
+            <View style={{ flex: 1, flexDirection: screenWidth < 768 ? 'column' : 'row', flexWrap: 'wrap', justifyContent: 'space-evenly', margin: 5, marginTop: 20, marginBottom: 20 }}>
                 {animals.map((animal) => (
                     <Card key={animal.name} style={{ width: screenWidth > 768 ? '47%' : '95%', margin: 10 }} onPress={ () => router.push({pathname: '/(animal)/[animal]', params: { id: animal.id }}) }>
                         <Card.Section
@@ -35,7 +35,7 @@ const California = () => {
                         <Card.Section
                             content={[
                                 { text: animal.name, text60: true, $textDefault: true },
-                                { text: `${animal.class} • ${animal.family} • ${animal.genus} `, text100R: true },
+                                { text: `${animal.class} • ${animal.order} • ${animal.family} • ${animal.genus} `, text100R: true },
                             ]}
                             style={{ padding: 15 }}
                         />

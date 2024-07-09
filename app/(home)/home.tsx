@@ -24,8 +24,8 @@ const Home = () => {
 
     const cards = [
         { image: require('../../assets/images/home/welcome.png'), title: 'Welcome to the Empathy Guide App!', description: 'Welcome to the Empathy Guide mobile app! Feel free to explore or click here to learn more about this project!', onPress: () => router.push('welcome') },
-        { image: require('../../assets/images/home/empathy.png'), title: 'Learn about Empathy!', description: 'Learn about the meaning of empathy, and why it is is an important factor in helping guests empathize with wildlife.' },
-        { image: require('../../assets/images/home/resources.png'), title: 'Additional Resources', description: 'View a collection of resources related to empathy and conservation.' }
+        { image: require('../../assets/images/home/empathy.png'), title: 'Learn about Empathy!', description: 'Learn about the meaning of empathy, and why it is is an important factor in helping guests empathize with wildlife.', onPress: () => router.push('learn') },
+        { image: require('../../assets/images/home/resources.png'), title: 'Additional Resources', description: 'View a collection of resources related to empathy and conservation.', onPress: () => router.push('resources') }
     ];
 
     const ref = React.useRef<ICarouselInstance>(null);
