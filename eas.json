@@ -12,7 +12,11 @@
       "distribution": "internal"
     },
     "production": {
-      "env": { "ANDROID_SDK_ROOT": "/Users/albertshih/Library/Android/sdk" }
+      "env": { "ANDROID_SDK_ROOT": "/Users/albertshih/Library/Android/sdk" },
+      "android": {
+        "buildType": "apk",
+        "image": "latest"
+      }
     }
   },
   "submit": {

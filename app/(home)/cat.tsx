@@ -15,13 +15,20 @@ const California = () => {
     useEffect(() => {
         const fetchAnimals = async () => {
             const animalsCollection = firestore().collection('animals');
-            const snapshot = await animalsCollection.get();
-            const animalsList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const animalDocs = await animalsCollection.get();
+            const animalsList = [];
+            for (let doc of animalDocs.docs) {
+                const animalData = await doc.ref.get();
+                if (animalData.data() && animalData.data()?.location && animalData.data()?.location === 'CA Trail') {
+                    animalsList.push({ id: animalData.id, ...animalData.data() });
+                }
+            }
             setAnimals(animalsList);
         };
-
+    
         fetchAnimals();
     }, []);
+    
 
     return (
         <ScrollView>

@@ -43,6 +43,8 @@ const Animal = () => {
     useEffect(() => {
         if (animal.name) {
             navigation.setOptions({ title: `${animal.name}` });
+        } else {
+            navigation.setOptions({ title: "Loading..." });
         }
     }, [animal, navigation]);
 

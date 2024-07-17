@@ -10,7 +10,10 @@ const HomeLayout = () => {
       <Stack.Screen name="welcome" options={{ presentation: 'modal', headerShown: false }} />
       <Stack.Screen name="learn" options={{ presentation: 'modal', headerShown: false }} />
       <Stack.Screen name="resources" options={{ presentation: 'modal', headerShown: false }} />
+      <Stack.Screen name="search" options={{ headerShown: true, title: "Search" }} />
       <Stack.Screen name="cat" options={{ headerShown: true, title: "California Trail" }} />
+      <Stack.Screen name="africa" options={{ headerShown: true, title: "African Savanna" }} />
+      <Stack.Screen name="cz" options={{ headerShown: true, title: "Children's Zoo" }} />
     </Stack>
   )
 }
