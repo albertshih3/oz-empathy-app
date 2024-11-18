@@ -44,18 +44,10 @@ const Home = () => {
 
     return (
         <GestureHandlerRootView>
+            
             <ScrollView>
 
                 {/* Toast Message for Home Screen */}
-                <Toast
-                    visible={toastVisible}
-                    position={'bottom'}
-                    preset='general'
-                    swipeable={true}
-                    enableHapticFeedback={true}
-                    messageStyle={{ fontSize: 13, fontWeight: 'bold' }}
-                    message='Please Note: While all of the information in these guides is acceptable to share with the public, this app should only be shared with Oakland Zoo staff, volunteers, and interns.'
-                />
 
                 <View style={{ flex: 1 }}>
                     <View style={{ height: 215 }}>
@@ -139,6 +131,26 @@ const Home = () => {
                                 content={[
                                     { text: `Childrens Zoo`, text60BO: true, $textDefault: true },
                                     { text: 'Explore and learn all about the Childrens Zoo!', text80: true, $textDefault: true }
+                                ]}
+                                style={{ padding: 15 }}
+                            />
+                        </Card>
+                        <Card style={{ width: '45%', marginTop: 15, marginBottom: 30 }} onPress={() => router.push('rainforest')}>
+                            <Card.Section imageSource={require('../../assets/images/home/rainforest.png')} imageStyle={{ height: 100, width: screenWidth > 768 ? screenWidth * 0.5 : 300, alignSelf: "center" }} />
+                            <Card.Section
+                                content={[
+                                    { text: 'Tropical Rainforest', text60BO: true, $textDefault: true },
+                                    { text: 'Explore and learn all about the Tropical Rainforest!', text80: true, $textDefault: true }
+                                ]}
+                                style={{ padding: 15 }}
+                            />
+                        </Card>
+                        <Card style={{ width: '45%', marginTop: 15, marginBottom: 30 }} onPress={() => router.push('australia')}>
+                            <Card.Section imageSource={require('../../assets/images/home/train.png')} imageStyle={{ height: 100, width: screenWidth > 768 ? screenWidth * 0.5 : 300, alignSelf: "center" }} />
+                            <Card.Section
+                                content={[
+                                    { text: `Wild Australia`, text60BO: true, $textDefault: true },
+                                    { text: 'Explore and learn all about Australia!', text80: true, $textDefault: true }
                                 ]}
                                 style={{ padding: 15 }}
                             />

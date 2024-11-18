@@ -2,7 +2,7 @@
   "expo": {
     "name": "Oakland Zoo Empathy Guide",
     "slug": "oz-empathy-app",
-    "version": "0.9.4",
+    "version": "1.2.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",

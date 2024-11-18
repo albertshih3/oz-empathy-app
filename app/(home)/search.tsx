@@ -17,37 +17,51 @@ const Search = () => {
         const fetchAnimals = async () => {
             const animalsCollection = firestore().collection('animals');
             const snapshot = await animalsCollection.get();
-            const animalsList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            let animalsList = [];
+            for (let doc of snapshot.docs) {
+                const animalData: { id: string, personal: any[] } = { id: doc.id, ...doc.data(), personal: [] };
+                const personalSnapshot = await doc.ref.collection('personal').get();
+                animalData.personal = personalSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                animalsList.push(animalData);
+            }
             setAnimals(animalsList);
         };
 
         fetchAnimals();
     }, []);
 
+
     return (
         <ScrollView>
+            <View style={{ margin: 15, marginTop: 20, marginBottom: 0 }}>
+                <Text style={{ fontWeight: 'bold', fontSize: 25 }}>Search by Species</Text>
+                <Text style={{ fontStyle: 'italic', color: 'gray', fontSize: 15 }}>or Search by Name</Text>
+            </View>
             <TextInput
                 style={{
-                    height: 40,
-                    borderColor: 'gray',
-                    borderWidth: 3,
-                    borderRadius: 20, // Rounded border
-                    paddingLeft: 10, // Padding on the sides
+                    height: 50,
+                    borderColor: 'black',
+                    borderWidth: 2,
+                    borderRadius: 10, // Rounded border
+                    paddingLeft: 20, // Padding on the sides
                     paddingRight: 10,
                     paddingTop: 5, // More padding on the top
                     paddingBottom: 5,
-                    marginTop: 20, // Add some space at the top of the page
-                    marginLeft: 10, // Add some space on the left side
-                    marginRight: 10, // Add some space on the right side
+                    marginTop: 15, // Add some space at the top of the page
+                    marginLeft: 15, // Add some space on the left side
+                    marginRight: 15, // Add some space on the right side
                 }}
                 onChangeText={text => setSearchTerm(text)}
                 value={searchTerm}
-                placeholder="Search"
+                placeholder="Search by species or by animal name"
                 autoFocus={true}
             />
 
-            <View style={{ flex: 1, flexDirection: screenWidth < 768 ? 'column' : 'row', flexWrap: 'wrap', justifyContent: 'space-evenly', margin: 5, marginTop: 20, marginBottom: 20 }}>
-                {animals.filter(animal => animal.name.toLowerCase().includes(searchTerm.toLowerCase())).map((animal) => ( // Modify this line
+            <View style={{ flex: 1, flexDirection: screenWidth < 768 ? 'column' : 'row', flexWrap: 'wrap', justifyContent: 'space-evenly', margin: 5, marginTop: 15, marginBottom: 20 }}>
+                {animals.filter(animal =>
+                    animal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    animal.personal.some((personal: any) => personal.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                ).map((animal) => (
                     <Card key={animal.name} style={{ width: screenWidth > 768 ? '47%' : '95%', margin: 10 }} onPress={() => router.push({ pathname: '/(animal)/[animal]', params: { id: animal.id } })}>
                         <Card.Section
                             imageSource={{ uri: animal.photo }}

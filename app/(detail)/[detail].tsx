@@ -14,9 +14,12 @@ import { StatusBar } from 'expo-status-bar';
 import { Entypo } from '@expo/vector-icons';
 import Dash from 'react-native-ui-lib';
 import { BlurView } from '@react-native-community/blur';
+import BirthdayModal from './BirthdayModal';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 const Details = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [isBirthdayModalVisible, setIsBirthdayModalVisible] = useState(false);
   const [animal, setAnimal] = useState<any>({});
   const { id }: { id?: string } = useLocalSearchParams();
   const { other }: { other?: string } = useLocalSearchParams();
@@ -95,13 +98,14 @@ const Details = () => {
         </Text>
         {Platform.OS === 'ios' && <Entypo name="chevron-down" size={24} color="white" style={{ position: 'absolute', alignSelf: 'center', top: 25 }} />}
         <BlurView
-          style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 60, justifyContent: 'center' }}
+          style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 75, justifyContent: 'center' }}
           overlayColor="transparent"
           blurType="regular"
           blurAmount={30}
           reducedTransparencyFallbackColor="gray"
         >
-          <Text style={{ fontWeight: 'bold', fontSize: 35, marginLeft: 20, marginRight: 10, color: 'white', paddingLeft: Platform.OS === "android" ? 20 : 0, paddingTop: Platform.OS === "android" ? 5 : 0 }}>{animal.personalData.name}</Text>
+          <Text style={{ fontWeight: 'bold', fontSize: 35, marginLeft: 20, marginRight: 10, color: 'white', paddingLeft: Platform.OS === "android" ? 20 : 0, paddingTop: Platform.OS === "android" ? 1 : 0 }}>{animal.personalData.name}</Text>
+          <Text style={{ fontWeight: 'thin', fontSize: 15, marginLeft: 20, marginRight: 10, color: 'white', paddingLeft: Platform.OS === "android" ? 21 : 0, paddingTop: Platform.OS === "android" ? 43 : 0 }}>Photo Credit: {animal.personalData.photocredit}</Text>
         </BlurView>
       </View>
 
@@ -128,11 +132,22 @@ const Details = () => {
             style={{ padding: 15 }}
           />
         </Card>
-        <Card style={{ width: '45%' }}>
-          <Card.Section imageSource={require('../../assets/images/detail/age.png')} imageStyle={{ height: 100, width: windowWidth > 768 ? windowWidth * 0.5 : 300, alignSelf: "center" }} />
+        <Card style={{ width: '45%' }} onPress={() => setIsBirthdayModalVisible(true)}>
+          <Card.Section
+            imageSource={require('../../assets/images/detail/age.png')}
+            imageStyle={{ height: 100, width: windowWidth > 768 ? windowWidth * 0.5 : 300, alignSelf: "center" }}
+          />
           <Card.Section
             content={[
-              { text: 'Age', text60BO: true, $textDefault: true },
+              {
+                text: (
+                  <Text>
+                    Age <MaterialCommunityIcons name="gesture-tap" size={24} color="black" />
+                  </Text>
+                ),
+                text60BO: true,
+                $textDefault: true
+              },
               { text: `${ageInYears.toFixed(1)} years`, text70: true, $textDefault: true }
             ]}
             style={{ padding: 15 }}
@@ -160,6 +175,12 @@ const Details = () => {
         </Card>
       </View>
 
+      <BirthdayModal
+        isVisible={isBirthdayModalVisible}
+        onClose={() => setIsBirthdayModalVisible(false)}
+        birthday={animal.personalData.born}
+        animalName={animal.personalData.name}
+      />
 
     </ScrollView>
   )

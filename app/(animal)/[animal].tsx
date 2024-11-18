@@ -1,15 +1,17 @@
-import { View, Text, Dimensions, ScrollView } from 'react-native';
+import { View, Text, Dimensions, ScrollView, Platform } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useLocalSearchParams, Stack, useNavigation } from 'expo-router';
 import firestore, { doc } from '@react-native-firebase/firestore';
 import React from 'react';
-import { LoaderScreen } from 'react-native-ui-lib';
+import { LoaderScreen, TouchableOpacity } from 'react-native-ui-lib';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Incubator, Constants, Spacings, Image, Colors, Card } from 'react-native-ui-lib';
 import Carousel, { ICarouselInstance, Pagination } from 'react-native-reanimated-carousel';
 import { useSharedValue } from "react-native-reanimated";
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import LifespanDialog from './LifespanModal';
 
 const Animal = () => {
 
@@ -20,6 +22,7 @@ const Animal = () => {
     const navigation = useNavigation();
     const [animal, setAnimal] = useState<any>({});
     const [isLoading, setIsLoading] = useState(true);
+    const [isLifespanDialogVisible, setIsLifespanDialogVisible] = useState(false);
 
     useEffect(() => {
         const fetchAnimal = async () => {
@@ -42,9 +45,16 @@ const Animal = () => {
 
     useEffect(() => {
         if (animal.name) {
-            navigation.setOptions({ title: `${animal.name}` });
+
+            const headerLeft = Platform.OS === 'ios' ? () => (
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Text style={{ marginLeft: 15, fontSize: 16 }}>Back</Text>
+                </TouchableOpacity>
+            ) : undefined;
+
+            navigation.setOptions({ title: `${animal.name}`, headerLeft: headerLeft });
         } else {
-            navigation.setOptions({ title: "Loading..." });
+            navigation.setOptions({ title: "Loading...", headerBackVisible: true });
         }
     }, [animal, navigation]);
 
@@ -91,32 +101,32 @@ const Animal = () => {
                 <ScrollView>
                     <View style={{ flex: 1, minHeight: 220 }}>
 
-                    <Card style={{ flex: 1, maxHeight: 205, marginTop: 10, marginLeft: 10, marginRight: 10, marginBottom: 0 }}>
-                        <Card.Section
-                            imageSource={require('../../assets/images/home/welcometext.png')} imageStyle={{ height: 100, width: imageWidth, alignSelf: "center" }}
-                            content={[
-                                { text: animal.name, text40BO: true, $textDefault: true },
-                                { text: `${animal.class} • ${animal.order} • ${animal.family} • ${animal.genus} `, text80R: true },
-                            ]}
-                            contentStyle={{ padding: 35, marginTop: 0 }}
-                        />
-                        <Card.Section
-                            content={[
-                                {
-                                    text: `View the details of the ${animal.name} below. Scroll and click on each individual animal to learn more.`,
-                                    text70: true,
-                                }
-                            ]}
-                            style={{ padding: 15, flex: 1 }}
-                        />
-                    </Card>
+                        <Card style={{ flex: 1, maxHeight: 205, marginTop: 10, marginLeft: 10, marginRight: 10, marginBottom: 0 }}>
+                            <Card.Section
+                                imageSource={require('../../assets/images/home/welcometext.png')} imageStyle={{ height: 100, width: imageWidth, alignSelf: "center" }}
+                                content={[
+                                    { text: animal.name, text40BO: true, $textDefault: true },
+                                    { text: `${animal.class} • ${animal.order} • ${animal.family} • ${animal.genus} `, text80R: true },
+                                ]}
+                                contentStyle={{ padding: 35, marginTop: 0 }}
+                            />
+                            <Card.Section
+                                content={[
+                                    {
+                                        text: `View the details of the ${animal.name} below. Scroll and click on each individual animal to learn more.`,
+                                        text70: true,
+                                    }
+                                ]}
+                                style={{ padding: 15, flex: 1 }}
+                            />
+                        </Card>
                     </View>
 
                     <View style={{ height: 180 }}>
                         <Carousel
                             data={cards}
                             renderItem={({ item }: { item: PersonalItem }) => (
-                                <Card key={item.title} style={{ flex: 1, maxHeight: 165, marginTop: 10, marginLeft: 10, marginRight: 10 }} onPress={ () => router.navigate({pathname: '/(detail)/[detail]', params: { id: item.docid, other: `${id}` }}) }>
+                                <Card key={item.title} style={{ flex: 1, maxHeight: 165, marginTop: 10, marginLeft: 10, marginRight: 10 }} onPress={() => router.navigate({ pathname: '/(detail)/[detail]', params: { id: item.docid, other: `${id}` } })}>
                                     <Card.Section
                                         content={[
                                             { text: item.title, text60BO: true, $textDefault: true },
@@ -132,7 +142,7 @@ const Animal = () => {
                             )}
                             width={Constants.screenWidth}
                             height={450}
-                            autoPlay={true}
+                            autoPlay={false}
                             autoPlayInterval={5000}
                             scrollAnimationDuration={500}
                             onProgressChange={progress}
@@ -148,42 +158,66 @@ const Animal = () => {
                             onPress={onPressPagination}
                         />
                     </View>
-                        <View style={{ margin: 15, marginTop: 20, marginBottom: 15 }}>
-                            <Text style={{ fontWeight: 'bold', fontSize: 25 }}>Species Information</Text>
-                        </View>
+                    <View style={{ margin: 15, marginTop: 20, marginBottom: 15 }}>
+                        <Text style={{ fontWeight: 'bold', fontSize: 25 }}>Species Information</Text>
+                    </View>
 
-                        <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-evenly', alignContent: 'space-evenly' }}>
-                            <Card style={{ width: '45%' }}>
-                                <Card.Section imageSource={require('../../assets/images/animal/diet.png')} imageStyle={{ height: 100, width: screenWidth > 768 ? screenWidth * 0.5 : 300, alignSelf: "center" }} />
-                                <Card.Section
-                                    content={[
-                                        { text: 'Diet', text60BO: true, $textDefault: true },
-                                        { text: animal.diet, text80: true, $textDefault: true }
-                                    ]}
-                                    style={{ padding: 15 }}
-                                />
-                            </Card>
-                            <Card style={{ width: '45%' }}>
-                                <Card.Section imageSource={require('../../assets/images/animal/age.jpg')} imageStyle={{ height: 100, width: screenWidth > 768 ? screenWidth * 0.5 : 300, alignSelf: "center" }} />
-                                <Card.Section
-                                    content={[
-                                        { text: 'Lifespan', text60BO: true, $textDefault: true },
-                                        { text: animal.lifespan, text80: true, $textDefault: true }
-                                    ]}
-                                    style={{ padding: 15 }}
-                                />
-                            </Card>
-                            <Card style={{ width: '93%', marginTop: 15, marginBottom: 30 }}>
-                                <Card.Section imageSource={require('../../assets/images/animal/map.jpg')} imageStyle={{ height: 100, width: screenWidth > 768 ? screenWidth * 0.5 : 300, alignSelf: "center" }} />
-                                <Card.Section
-                                    content={[
-                                        { text: 'Range', text60BO: true, $textDefault: true },
-                                        { text: animal.range, text80: true, $textDefault: true }
-                                    ]}
-                                    style={{ padding: 15 }}
-                                />
-                            </Card>
-                        </View>
+                    <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-evenly', alignContent: 'space-evenly' }}>
+                        <Card style={{ width: '45%' }}>
+                            <Card.Section imageSource={require('../../assets/images/animal/diet.png')} imageStyle={{ height: 100, width: screenWidth > 768 ? screenWidth * 0.5 : 300, alignSelf: "center" }} />
+                            <Card.Section
+                                content={[
+                                    {
+                                        text: (
+                                            <Text>
+                                                Diet
+                                            </Text>
+                                        ),
+                                        text60BO: true,
+                                        $textDefault: true
+                                    },
+                                    { text: animal.diet, text80: true, $textDefault: true }
+                                ]}
+                                style={{ padding: 15 }}
+                            />
+                        </Card>
+                        <Card style={{ width: '45%' }} onPress={() => setIsLifespanDialogVisible(true)}>
+                            <Card.Section imageSource={require('../../assets/images/animal/age.jpg')} imageStyle={{ height: 100, width: screenWidth > 768 ? screenWidth * 0.5 : 300, alignSelf: "center" }} />
+                            <Card.Section
+                                content={[
+                                    {
+                                        text: (
+                                            <Text>
+                                                Lifespan <MaterialCommunityIcons name="gesture-tap" size={24} color="black" />
+                                            </Text>
+                                        ),
+                                        text60BO: true,
+                                        $textDefault: true
+                                    },
+                                    { text: animal.lifespan, text80: true, $textDefault: true }
+                                ]}
+                                style={{ padding: 15 }}
+                            />
+                        </Card>
+                        <Card style={{ width: '93%', marginTop: 15, marginBottom: 30 }}>
+                            <Card.Section imageSource={require('../../assets/images/animal/map.jpg')} imageStyle={{ height: 100, width: screenWidth > 768 ? screenWidth * 0.5 : 300, alignSelf: "center" }} />
+                            <Card.Section
+                                content={[
+                                    { text: 'Range', text60BO: true, $textDefault: true },
+                                    { text: animal.range, text80: true, $textDefault: true }
+                                ]}
+                                style={{ padding: 15 }}
+                            />
+                        </Card>
+                    </View>
+
+                    <LifespanDialog
+                        isVisible={isLifespanDialogVisible}
+                        onClose={() => setIsLifespanDialogVisible(false)}
+                        lifespan={animal.lifespan}
+                        lifespanCap={animal.lifespan_cap}
+                        animalName={animal.name}
+                    />
 
                 </ScrollView>
             )}

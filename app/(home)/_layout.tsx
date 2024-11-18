@@ -14,6 +14,8 @@ const HomeLayout = () => {
       <Stack.Screen name="cat" options={{ headerShown: true, title: "California Trail" }} />
       <Stack.Screen name="africa" options={{ headerShown: true, title: "African Savanna" }} />
       <Stack.Screen name="cz" options={{ headerShown: true, title: "Children's Zoo" }} />
+      <Stack.Screen name="rainforest" options={{ headerShown: true, title: "Tropical Rainforest" }} />
+      <Stack.Screen name="australia" options={{ headerShown: true, title: "Wild Australia" }} />
     </Stack>
   )
 }

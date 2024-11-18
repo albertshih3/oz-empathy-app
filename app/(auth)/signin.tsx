@@ -8,12 +8,12 @@ const SignIn = () => {
 
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
   const router = useRouter();
 
-  const {Toast} = Incubator;
+  const { Toast } = Incubator;
 
   function onAuthStateChanged(user: any): void {
     setUser(user);
@@ -28,13 +28,15 @@ const SignIn = () => {
 
   if (initializing) return (<LoaderScreen message={'Give me a second :)'} color="gray" />);
 
-  const handleLogin = (email: any, password: any) => {
-
-    if (email === '' || password === '') {
-      console.error('Email or password cannot be empty');
+  const handleLogin = (username: any, password: any) => {
+    if (username === '' || password === '') {
+      console.error('Username or password cannot be empty');
       setToastVisible(true);
       return;
     }
+
+    // Append @ozempathyapp.com to the username
+    const email = `${username}@ozempathyapp.com`;
 
     console.log('Logging in...');
     auth()
@@ -47,7 +49,7 @@ const SignIn = () => {
         console.error(error);
         setToastVisible(true);
       });
-  };   
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1, flexDirection: "column", alignContent: "center", padding: 5, margin: 10 }}>
@@ -55,15 +57,15 @@ const SignIn = () => {
       <Text style={{ color: "gray", fontSize: 20, marginBottom: 20 }}>Please sign in.</Text>
       <TextField
         text60
-        placeholder="Email"
+        placeholder="Username"
         floatingPlaceholder
-        onChangeText={setEmail}
-        value={email}
+        onChangeText={setUsername} // Update this line
+        value={username} // And this line
         grey10
         marginB-16
-
         style={{ padding: 5, borderBottomWidth: 2, borderColor: "lightgray", borderRadius: 5 }}
       />
+
       <TextField
         text60
         placeholder="Password"
@@ -76,7 +78,7 @@ const SignIn = () => {
         style={{ padding: 5, borderBottomWidth: 2, borderColor: "lightgray", borderRadius: 5 }}
       />
       <View marginT-24>
-        <Button label="Login" onPress={() => handleLogin(email, password)} text70 white background-primary />
+        <Button label="Login" onPress={() => handleLogin(username, password)} text70 white background-primary />
       </View>
       <Toast
         visible={toastVisible}
