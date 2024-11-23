@@ -1,40 +1,66 @@
-import { View, Text, Dimensions, ScrollView } from 'react-native'
-import { useEffect, useState } from 'react'
-import { Card, ListItem, Colors, Constants, Incubator } from 'react-native-ui-lib';
-import Carousel, { ICarouselInstance, Pagination } from 'react-native-reanimated-carousel';
-import React from 'react'
-import firestore from '@react-native-firebase/firestore';
-import { Link, router } from 'expo-router';
+import { View, Text, Dimensions, FlatList, ActivityIndicator } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Card } from 'react-native-ui-lib';
+import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { router } from 'expo-router';
 
 const Children = () => {
     const [animals, setAnimals] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [lastVisible, setLastVisible] = useState<FirebaseFirestoreTypes.QueryDocumentSnapshot | null>(null);
+    const pageSize = 10;
 
     const screenWidth = Dimensions.get('window').width;
-    const imageWidth = screenWidth > 768 ? screenWidth * 1 : 450;
 
     useEffect(() => {
         const fetchAnimals = async () => {
-            const animalsCollection = firestore().collection('animals');
-            const animalDocs = await animalsCollection.get();
-            const animalsList = [];
-            for (let doc of animalDocs.docs) {
-                const animalData = await doc.ref.get();
-                if (animalData.data() && animalData.data()?.location && animalData.data()?.location === 'Children') {
-                    animalsList.push({ id: animalData.id, ...animalData.data() });
+            setLoading(true);
+            try {
+                const animalsCollection = firestore().collection('animals').where('location', '==', 'Children').limit(pageSize);
+                const snapshot = await animalsCollection.get();
+                const animalsList = [];
+                for (let doc of snapshot.docs) {
+                    animalsList.push({ id: doc.id, ...doc.data() });
                 }
+                setAnimals(animalsList);
+                setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
+            } catch (error) {
+                console.error("Error fetching animals: ", error);
+            } finally {
+                setLoading(false);
             }
-            setAnimals(animalsList);
         };
-    
+
         fetchAnimals();
     }, []);
-    
+
+    const fetchMoreAnimals = async () => {
+        if (loading || !lastVisible) return;
+
+        setLoading(true);
+        try {
+            const animalsCollection = firestore().collection('animals')
+                .where('location', '==', 'Children')
+                .startAfter(lastVisible)
+                .limit(pageSize);
+
+            const snapshot = await animalsCollection.get();
+            const newAnimals = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setAnimals(prevAnimals => [...prevAnimals, ...newAnimals]);
+            setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
+        } catch (error) {
+            console.error("Error fetching more animals: ", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
-        <ScrollView>
-            <View style={{ flex: 1, flexDirection: screenWidth < 768 ? 'column' : 'row', flexWrap: 'wrap', justifyContent: 'space-evenly', margin: 5, marginTop: 20, marginBottom: 20 }}>
-                {animals.map((animal) => (
-                    <Card key={animal.name} style={{ width: screenWidth > 768 ? '47%' : '95%', margin: 10 }} onPress={ () => router.push({pathname: '/(animal)/[animal]', params: { id: animal.id }}) }>
+        <View style={{ flex: 1 }}>
+            <FlatList
+                data={animals}
+                renderItem={({ item: animal }) => (
+                    <Card key={animal.name} style={{ width: screenWidth > 768 ? '47%' : '95%', margin: 10 }} onPress={() => router.push({ pathname: '/(animal)/[animal]', params: { id: animal.id } })}>
                         <Card.Section
                             imageSource={{ uri: animal.photo }}
                             imageStyle={{ height: 200, width: screenWidth < 768 ? 425 : 565, alignSelf: "center" }}
@@ -42,14 +68,23 @@ const Children = () => {
                         <Card.Section
                             content={[
                                 { text: animal.name, text60: true, $textDefault: true },
-                                { text: `${animal.class} • ${animal.order} • ${animal.family} • ${animal.genus} `, text100R: true },
+                                { text: `${animal.class} • ${animal.order} • ${animal.family} • ${animal.genus}`, text100R: true },
                             ]}
                             style={{ padding: 15 }}
                         />
                     </Card>
-                ))}
-            </View>
-        </ScrollView>
+                )}
+                keyExtractor={animal => animal.name}
+                numColumns={screenWidth > 768 ? 2 : 1}
+                onEndReached={fetchMoreAnimals}
+                onEndReachedThreshold={0.5}
+                ListFooterComponent={loading ? (
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 10 }}>
+                        <ActivityIndicator size="large" />
+                    </View>
+                ) : null}
+            />
+        </View>
     )
 }
 
