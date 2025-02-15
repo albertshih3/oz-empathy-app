@@ -3,9 +3,21 @@ import { useEffect, useState } from 'react';
 import { Card } from 'react-native-ui-lib';
 import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { router } from 'expo-router';
+import React from 'react';
+
+interface Animal {
+    id: string;
+    name: string;
+    photo: string;
+    class: string;
+    order: string;
+    family: string;
+    genus: string;
+    location: string;
+}
 
 const Africa = () => {
-    const [animals, setAnimals] = useState<any[]>([]);
+    const [animals, setAnimals] = useState<Animal[]>([]);
     const [loading, setLoading] = useState(true);
     const [lastVisible, setLastVisible] = useState<FirebaseFirestoreTypes.QueryDocumentSnapshot | null>(null);
     const pageSize = 10;
@@ -20,9 +32,10 @@ const Africa = () => {
                 const snapshot = await animalsCollection.get();
                 const animalsList = [];
                 for (let doc of snapshot.docs) {
-                    animalsList.push({ id: doc.id, ...doc.data() });
+                    animalsList.push({ id: doc.id, ...doc.data() } as Animal);
                 }
-                setAnimals(animalsList);
+                const sortedAnimals = animalsList.sort((a, b) => a.name.localeCompare(b.name));
+                setAnimals(sortedAnimals);
                 setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
             } catch (error) {
                 console.error("Error fetching animals: ", error);
@@ -45,8 +58,11 @@ const Africa = () => {
                 .limit(pageSize);
 
             const snapshot = await animalsCollection.get();
-            const newAnimals = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setAnimals(prevAnimals => [...prevAnimals, ...newAnimals]);
+            const newAnimals = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Animal));
+            setAnimals(prevAnimals => {
+                const combinedAnimals = [...prevAnimals, ...newAnimals];
+                return combinedAnimals.sort((a, b) => a.name.localeCompare(b.name));
+            });
             setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
         } catch (error) {
             console.error("Error fetching more animals: ", error);
@@ -85,7 +101,7 @@ const Africa = () => {
                 ) : null}
             />
         </View>
-    )
-}
+    );
+};
 
-export default Africa
+export default Africa;

@@ -1,10 +1,11 @@
-import { View, Platform, Image, Text } from 'react-native';
+import { ScrollView, View, Platform, Image, Text } from 'react-native';
 import { Dimensions } from 'react-native';
 import { Link, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Entypo } from '@expo/vector-icons';
 import { Button, Dash } from 'react-native-ui-lib';
 import * as WebBrowser from 'expo-web-browser';
+import React from 'react';
 
 export default function Learn() {
   // If the page was reloaded or navigated to directly, then the modal should be presented as
@@ -12,7 +13,7 @@ export default function Learn() {
   const isPresented = router.canGoBack();
   const windowWidth = Dimensions.get('window').width;
   return (
-    <View style={{ flex: 1 }}>
+    <ScrollView style={{ flex: 1 }}>
       {/* Use `../` as a simple way to navigate to the root. This is not analogous to "goBack". */}
       {!isPresented && <Link href="../">Dismiss</Link>}
       {/* Native modals have dark backgrounds on iOS. Set the status bar to light content and add a fallback for other platforms with auto. */}
@@ -45,6 +46,6 @@ export default function Learn() {
       </View>
 
 
-    </View>
+    </ScrollView>
   );
 }
