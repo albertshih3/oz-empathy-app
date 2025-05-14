@@ -12,10 +12,22 @@
       "resizeMode": "cover",
       "backgroundColor": "#183152"
     },
+    "notification": {
+      "icon": "./assets/images/notification-icon.png",
+      "color": "#183152",
+      "iosDisplayInForeground": true,
+      "androidMode": "default"
+    },
     "ios": {
       "supportsTablet": true,
       "googleServicesFile": "./GoogleService-Info.plist",
-      "bundleIdentifier": "com.albertshih.ozempathyapp"
+      "bundleIdentifier": "com.albertshih.ozempathyapp",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
+      }
     },
     "android": {
       "googleServicesFile": "./google-services.json",
@@ -23,7 +35,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#183152"
       },
-      "package": "com.albertshih.ozempathyapp"
+      "package": "com.albertshih.ozempathyapp",
+      "permissions": ["NOTIFICATIONS"]
     },
     "web": {
       "bundler": "metro",
@@ -34,6 +47,7 @@
       "expo-router",
       "@react-native-firebase/app",
       "@react-native-firebase/auth",
+      "expo-notifications",
       [
         "expo-build-properties",
         {

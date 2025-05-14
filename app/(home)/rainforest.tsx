@@ -1,14 +1,30 @@
-import { View, Text, Dimensions, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, Dimensions, FlatList, ActivityIndicator, useColorScheme } from 'react-native';
 import { useEffect, useState } from 'react';
 import { Card } from 'react-native-ui-lib';
 import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { router } from 'expo-router';
+import { Colors } from '../../constants/Colors';
+import { ThemedText } from '../../components/ThemedText';
+import { ThemedView } from '../../components/ThemedView';
+
+interface Animal {
+    id: string;
+    name: string;
+    photo: string;
+    class: string;
+    order: string;
+    family: string;
+    genus: string;
+    location: string[] | string;
+}
 
 const Rainforest = () => {
-    const [animals, setAnimals] = useState<any[]>([]);
+    const [animals, setAnimals] = useState<Animal[]>([]);
     const [loading, setLoading] = useState(true);
     const [lastVisible, setLastVisible] = useState<FirebaseFirestoreTypes.QueryDocumentSnapshot | null>(null);
     const pageSize = 10;
+    const colorScheme = useColorScheme();
+    const theme = colorScheme === 'dark' ? 'dark' : 'light';
 
     const screenWidth = Dimensions.get('window').width;
 
@@ -16,14 +32,54 @@ const Rainforest = () => {
         const fetchAnimals = async () => {
             setLoading(true);
             try {
-                const animalsCollection = firestore().collection('animals').where('location', '==', 'Rainforest').limit(pageSize);
-                const snapshot = await animalsCollection.get();
-                const animalsList = [];
-                for (let doc of snapshot.docs) {
-                    animalsList.push({ id: doc.id, ...doc.data() });
+                // Get all animals first, then filter and sort in memory
+                // This avoids the need for a composite index
+                const animalsRef = firestore().collection('animals');
+                const snapshot = await animalsRef.get();
+
+                if (!snapshot.empty) {
+                    const allAnimals = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    })) as Animal[];
+
+                    // Filter animals in Rainforest location - handle both array and string formats
+                    const rainforestAnimals = allAnimals.filter(animal => {
+                        if (!animal.location) return false;
+
+                        // Handle array format
+                        if (Array.isArray(animal.location)) {
+                            return animal.location.some(loc =>
+                                loc === 'Rainforest' || loc.toLowerCase() === 'rainforest'
+                            );
+                        }
+
+                        // Handle string format
+                        return animal.location === 'Rainforest' || animal.location === 'rainforest';
+                    });
+
+                    // Sort by name
+                    const sortedAnimals = rainforestAnimals.sort((a, b) =>
+                        a.name.localeCompare(b.name)
+                    );
+
+                    // Only take the first page
+                    const firstPage = sortedAnimals.slice(0, pageSize);
+
+                    setAnimals(firstPage);
+
+                    // Set the last visible item for pagination
+                    if (sortedAnimals.length > pageSize) {
+                        // We need to find the document that corresponds to the last item in our page
+                        const lastItem = firstPage[firstPage.length - 1];
+                        const lastDocSnapshot = snapshot.docs.find(doc => doc.id === lastItem.id);
+                        if (lastDocSnapshot) {
+                            setLastVisible(lastDocSnapshot);
+                        }
+                    }
+                } else {
+                    setAnimals([]);
                 }
-                setAnimals(animalsList);
-                setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
             } catch (error) {
                 console.error("Error fetching animals: ", error);
             } finally {
@@ -35,19 +91,66 @@ const Rainforest = () => {
     }, []);
 
     const fetchMoreAnimals = async () => {
-        if (loading || !lastVisible) return;
+        if (!lastVisible || loading || animals.length === 0) return;
 
         setLoading(true);
         try {
-            const animalsCollection = firestore().collection('animals')
-                .where('location', '==', 'Rainforest')
-                .startAfter(lastVisible)
-                .limit(pageSize);
+            // Get all animals first (no index required)
+            const animalsRef = firestore().collection('animals');
+            const snapshot = await animalsRef.get();
 
-            const snapshot = await animalsCollection.get();
-            const newAnimals = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setAnimals(prevAnimals => [...prevAnimals, ...newAnimals]);
-            setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
+            if (!snapshot.empty) {
+                const allAnimals = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                })) as Animal[];
+
+                // Filter animals in Rainforest location - handle both array and string formats
+                const rainforestAnimals = allAnimals.filter(animal => {
+                    if (!animal.location) return false;
+
+                    // Handle array format
+                    if (Array.isArray(animal.location)) {
+                        return animal.location.some(loc =>
+                            loc === 'Rainforest' || loc.toLowerCase() === 'rainforest'
+                        );
+                    }
+
+                    // Handle string format
+                    return animal.location === 'Rainforest' || animal.location === 'rainforest';
+                });
+
+                // Sort by name
+                const sortedAnimals = rainforestAnimals.sort((a, b) =>
+                    a.name.localeCompare(b.name)
+                );
+
+                // Find index of lastVisible in the sorted array
+                const lastVisibleIndex = sortedAnimals.findIndex(animal => animal.id === lastVisible.id);
+
+                if (lastVisibleIndex !== -1 && lastVisibleIndex + 1 < sortedAnimals.length) {
+                    // Get next page of animals
+                    const nextPage = sortedAnimals.slice(lastVisibleIndex + 1, lastVisibleIndex + 1 + pageSize);
+
+                    // Set new animals
+                    setAnimals(prev => [...prev, ...nextPage]);
+
+                    // Set new lastVisible if there are more animals
+                    if (lastVisibleIndex + 1 + pageSize < sortedAnimals.length) {
+                        const newLastItem = nextPage[nextPage.length - 1];
+                        const newLastDocSnapshot = snapshot.docs.find(doc => doc.id === newLastItem.id);
+                        if (newLastDocSnapshot) {
+                            setLastVisible(newLastDocSnapshot);
+                        }
+                    } else {
+                        // No more items
+                        setLastVisible(null);
+                    }
+                } else {
+                    // No more items
+                    setLastVisible(null);
+                }
+            }
         } catch (error) {
             console.error("Error fetching more animals: ", error);
         } finally {
@@ -56,37 +159,116 @@ const Rainforest = () => {
     };
     
 
+    const renderAnimalCard = ({ item }: { item: Animal }) => (
+        <Card
+            style={[
+                styles.card,
+                { backgroundColor: colorScheme === 'dark' ? '#2C2C2E' : '#ffffff' }
+            ]}
+            onPress={() => router.push({
+                pathname: "/(animal)/[animal]",
+                params: { id: item.id }
+            })}
+        >
+            <Card.Section
+                imageSource={item.photo ? { uri: item.photo } : require('../../assets/images/home/rainforest.png')}
+                imageStyle={styles.cardImage}
+            />
+            <View style={styles.cardContent}>
+                <ThemedText style={styles.cardTitle}>{item.name}</ThemedText>
+                <ThemedText style={styles.cardSubtitle}>{item.genus}</ThemedText>
+            </View>
+        </Card>
+    );
+
+    if (loading && animals.length === 0) {
+        return (
+            <ThemedView style={styles.loaderContainer}>
+                <ActivityIndicator size="large" color={Colors[theme].tint} />
+                <ThemedText style={styles.loadingText}>Loading animals...</ThemedText>
+            </ThemedView>
+        );
+    }
+
     return (
-        <View style={{ flex: 1 }}>
+        <ThemedView style={styles.container}>
             <FlatList
                 data={animals}
-                renderItem={({ item: animal }) => (
-                    <Card key={animal.name} style={{ width: screenWidth > 768 ? '47%' : '95%', margin: 10 }} onPress={() => router.push({ pathname: '/(animal)/[animal]', params: { id: animal.id } })}>
-                        <Card.Section
-                            imageSource={{ uri: animal.photo }}
-                            imageStyle={{ height: 200, width: screenWidth < 768 ? 425 : 565, alignSelf: "center" }}
-                        />
-                        <Card.Section
-                            content={[
-                                { text: animal.name, text60: true, $textDefault: true },
-                                { text: `${animal.class} • ${animal.order} • ${animal.family} • ${animal.genus}`, text100R: true },
-                            ]}
-                            style={{ padding: 15 }}
-                        />
-                    </Card>
-                )}
-                keyExtractor={animal => animal.name}
-                numColumns={screenWidth > 768 ? 2 : 1}
+                renderItem={renderAnimalCard}
+                keyExtractor={item => item.id}
                 onEndReached={fetchMoreAnimals}
                 onEndReachedThreshold={0.5}
-                ListFooterComponent={loading ? (
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 10 }}>
-                        <ActivityIndicator size="large" />
-                    </View>
-                ) : null}
+                numColumns={screenWidth > 768 ? 2 : 1}
+                contentContainerStyle={styles.listContent}
+                ListFooterComponent={
+                    loading ?
+                    <ActivityIndicator
+                        size="large"
+                        color={Colors[theme].tint}
+                        style={styles.footerLoader}
+                    /> : null
+                }
+                ListEmptyComponent={
+                    <ThemedView style={styles.emptyContainer}>
+                        <ThemedText style={styles.emptyText}>No animals found in Tropical Rainforest.</ThemedText>
+                    </ThemedView>
+                }
             />
-        </View>
-    )
+        </ThemedView>
+    );
 }
+
+const styles = {
+    container: {
+        flex: 1,
+    },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    loadingText: {
+        marginTop: 10,
+        fontSize: 16,
+    },
+    listContent: {
+        padding: 10,
+    },
+    card: {
+        flex: 1,
+        margin: 10,
+        borderRadius: 12,
+        overflow: 'hidden',
+    },
+    cardImage: {
+        height: 170,
+        width: '100%',
+    },
+    cardContent: {
+        padding: 16,
+    },
+    cardTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    cardSubtitle: {
+        fontSize: 14,
+        marginTop: 4,
+        opacity: 0.7,
+    },
+    footerLoader: {
+        marginVertical: 20,
+    },
+    emptyContainer: {
+        flex: 1,
+        padding: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    emptyText: {
+        fontSize: 16,
+        textAlign: 'center',
+    },
+};
 
 export default Rainforest

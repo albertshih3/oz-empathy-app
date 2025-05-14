@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
+    "@react-native-async-storage/async-storage": "^2.1.2",
     "@react-native-community/blur": "^4.4.0",
     "@react-native-community/datetimepicker": "^8.1.1",
     "@react-native-community/netinfo": "^11.3.2",
@@ -24,14 +25,19 @@
     "@react-native-firebase/firestore": "^20.1.0",
     "@react-native-picker/picker": "^2.7.7",
     "@react-navigation/native": "^6.0.2",
+    "axios": "^1.9.0",
+    "eas-cli": "^16.4.0",
     "expo": "~51.0.14",
     "expo-build-properties": "~0.12.3",
     "expo-constants": "~16.0.2",
     "expo-dev-client": "~4.0.18",
+    "expo-device": "~6.0.2",
     "expo-font": "~12.0.7",
+    "expo-image": "~1.12.12",
     "expo-linear-gradient": "~13.0.2",
     "expo-linking": "~6.3.1",
     "expo-navigation-bar": "~3.0.6",
+    "expo-notifications": "~0.28.19",
     "expo-router": "~3.5.16",
     "expo-splash-screen": "~0.27.5",
     "expo-status-bar": "~1.12.1",
@@ -49,8 +55,7 @@
     "react-native-screens": "3.31.1",
     "react-native-ui-lib": "^7.25.0",
     "react-native-web": "~0.19.10",
-    "react-navigation": "^5.0.0",
-    "expo-image": "~1.12.12"
+    "react-navigation": "^5.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
@@ -61,7 +66,8 @@
     "jest-expo": "~51.0.1",
     "react-test-renderer": "18.2.0",
     "tailwindcss": "^3.3.2",
-    "typescript": "~5.3.3"
+    "typescript": "~5.3.3",
+    "yargs": "^17.7.2"
   },
   "private": true
 }

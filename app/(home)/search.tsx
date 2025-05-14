@@ -2,12 +2,15 @@ import { View, Text, Dimensions, ScrollView, TextInput, FlatList, ActivityIndica
 import { useEffect, useState } from 'react';
 import { Card } from 'react-native-ui-lib';
 import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
-import { Link, router } from 'expo-router';
+import { Link, router, useLocalSearchParams } from 'expo-router';
 
 const Search = () => {
+    const params = useLocalSearchParams();
+    const initialQuery = typeof params.query === 'string' ? params.query : '';
+    
     const [animals, setAnimals] = useState<any[]>([]); // For display
     const [allAnimals, setAllAnimals] = useState<any[]>([]); // Complete dataset
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState(initialQuery);
     const [loading, setLoading] = useState(false);
     const [lastVisible, setLastVisible] = useState<FirebaseFirestoreTypes.QueryDocumentSnapshot<FirebaseFirestoreTypes.DocumentData> | null>(null);
 
