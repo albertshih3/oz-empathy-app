@@ -3,15 +3,23 @@
     "version": ">= 10.0.2"
   },
   "build": {
+    "base": {
+        "ios": {
+          "image": "sdk-49"
+        }
+      },
     "development": {
+      "extends": "base",
       "developmentClient": true,
       "distribution": "internal",
       "env": { "ANDROID_SDK_ROOT": "/Users/albertshih/Library/Android/sdk" }
     },
     "preview": {
+      "extends": "base",
       "distribution": "internal"
     },
     "production": {
+      "extends": "base",
       "env": { "ANDROID_SDK_ROOT": "/Users/albertshih/Library/Android/sdk" },
       "android": {
         "buildType": "apk",
